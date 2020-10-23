@@ -52,6 +52,7 @@ async def select(sql, args, size=None):
         return rs
 
 
+#执行Insert, Update, Delete
 async def execute(sql, args, autocommit=True):
     log(sql)
     async with __pool.get() as conn:
@@ -70,15 +71,17 @@ async def execute(sql, args, autocommit=True):
         return affected
 
 
+# 根据输入的数字创建参数个数，例如：输入3返回 ?, ?, ?
 def create_args_string(num):
     L = []
     for _ in range(num):
         L.append('?')
-    return ', '.join(L)
+    return ', '.join(L)  # join意为用指定的字符连接生成一个新字符串
 
 
+# 构建属性时的父类
 class Field(object):
-
+    # __init__用来将传入的参数初始化给对象
     def __init__(self, name, column_type, primary_key, default):
         self.name = name
         self.column_type = column_type
@@ -119,11 +122,16 @@ class TextField(Field):
         super().__init__(name, 'text', False, default)
 
 
+# metaclass意为元类，是类的模板，所以必须从'type'类型派生，一般用来动态的创建类
 class ModelMetaclass(type):
-
+    # __new__是在__init__之前被调用的特殊方法
+    # __new__是用来创建对象并返回的方法
+    # __new__()方法接收到的参数依次是：当前准备创建的类的对象;类的名字;类继承的父类集合;类的方法集合（通过metaclass动态创建的类都会将类中定义的属性以K,V形式传入attrs，Key为变量名，Value为值）
     def __new__(cls, name, bases, attrs):
+        # 排除Model类本身:
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
+        # 获取table名称，如果要创建的类中定义了__table__属性，则取__table__属性的值，如果没有定义__table__属性（为None），则使用要创建类的类名
         tableName = attrs.get('__table__', None) or name
         logging.info('found model: %s (table: %s)' % (name, tableName))
         mappings = dict()
