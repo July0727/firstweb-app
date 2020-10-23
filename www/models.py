@@ -8,7 +8,7 @@ def next_id():
     return '%015d%s000' % (int(time.time()*1000), uuid.uuid4().hex)
 
 
-def User(Model):
+class User(Model):
     __table__ = 'users'
 
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
@@ -20,7 +20,7 @@ def User(Model):
     created_at = FloatField(default=time.time)
 
 
-def Blog(Model):
+class Blog(Model):
     __table__ = 'blogs'
 
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
@@ -33,7 +33,7 @@ def Blog(Model):
     created_at = FloatField(default=time.time)
 
 
-def Comment(Model):
+class Comment(Model):
     __table__ = 'comments'
 
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
